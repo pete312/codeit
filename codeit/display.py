@@ -139,15 +139,40 @@ def bg(n):
     return f"\x1b[48;5;{n}m"
     
 
+def exit(value=0):
+    '''
+    provides a line numbered exit statement to show which exit() function caused termination. Overrides built in function exit()
+    '''
+    last_line = getframeinfo(currentframe().f_back).lineno
+    print( red(last_line), yellow('exit %s' % value))
+    sys.exit(value)
+
+
 def view(caption, content, color=None, file=sys.stdout):
+    '''
+    data visualizer that performs a view before use action on any variable. 
+    Handy in list or dict comprensions or anywhere you need to inspect data values without a debugger.
     
-    if getattr(print_this, 'suppress', None) == None:
-        print_this.suppress = []
+    example shows inline inspection of the key and val of each filtered item
         
-    if getattr(print_this, 'disable', False):
+    data = {'key1':['val1','val2'], 'key2':['val3','val4']}
+    filtered_values = {key:view(f'value of {key}', val) for key,val in data.items() if key == 'key1'}
+    
+    line numbered output:
+    2 value of key1 ...
+        val1
+        val2
+    ...
+
+    '''
+    
+    if getattr(view, 'suppress', None) == None:
+        view.suppress = []
+        
+    if getattr(view, 'disable', False):
         return content
         
-    if caption in print_this.suppress:
+    if caption in view.suppress:
         return content
         
     last_line = (currentframe().f_back).f_lineno
@@ -189,7 +214,7 @@ def view(caption, content, color=None, file=sys.stdout):
     else:
         print(caption_color('...'), file=file)
         
-    if last_line in print_this.bp:
+    if last_line in view.bp:
         input(f'bp line {last_line}')
     
     return content
@@ -250,6 +275,9 @@ label.bp = []
 
 
 def tabulate(grid, *args, pick=[], headers=[], label='', verbose=False, tablefmt='psql', **kwargs):
+    '''
+    Tabulate presentation wrapper.
+    '''
     width = 0 if not grid else len(grid[0])
     
     if verbose or label:
@@ -269,7 +297,11 @@ def tabulate(grid, *args, pick=[], headers=[], label='', verbose=False, tablefmt
         
     return _tabulate(grid, *args, tablefmt=tablefmt, headers=headers, **kwargs)
 
+
 def sample(obj, maxdepth=2, formatter=pformat):
+    '''
+    returns a sample of the data of a list or dictionary
+    '''
     if isinstance(obj, list):
         samp = []
         for i, val in enumerate(obj,1):
