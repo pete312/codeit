@@ -2,12 +2,12 @@ codeit
 ======
 
 
-Tools for building debugging and maintaining code.
+Use codeit aid code writing by using inline watch functions to colorize and visualize data. There is a helper to make shell commands easier to make
 
 label
 -----
     
-    a breakpointable inline print decorator will label data items before using the data. 
+A breakpointable inline print decorator will label data items before using the data. 
         
         mylist = [label('mod 2', i) for i in range(12) if i % 2]
         
@@ -22,20 +22,32 @@ label
 peek
 ----
     
-    inline print decorator same as label (minus the label) will peek at a value before using it
+Inline print decorator same as label (minus the label) will peek at a value before using it
 
 view
 ----
 
-    inline print decorator will view a block of data with conditional suppression and breakpoint ability
+Inline print decorator will view a block of data with conditional suppression and breakpoint ability
 
 sample
 ------
     
-    grab a sample of a big dataset (works on list like or dict type data).
+Grab a sample of a big dataset (works on list like or dict type data).
 
 tabulate
 -------- 
 
-    decorator for tabulate 
+Extended functionality for tabulate to pick columns to display in the table as well as line number location and labeling. 
+    
+    
+shell
+-----
+
+humanize
+--------
+
+millify
+-------
+
+Takes 
     

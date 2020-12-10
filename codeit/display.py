@@ -276,7 +276,8 @@ label.bp = []
 
 def tabulate(grid, *args, pick=[], headers=[], label='', verbose=False, tablefmt='psql', **kwargs):
     '''
-    Tabulate presentation wrapper.
+    Tabulate presentation wrapper extends tabulate to be able to pick column numbers to view and supports table label and line number location.
+    
     '''
     width = 0 if not grid else len(grid[0])
     
