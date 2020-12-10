@@ -32,7 +32,7 @@ view
 sample
 ------
     
-    grab a sample to view of data from list type or dict type data set.
+    grab a sample of a big dataset (works on list like or dict type data).
 
 tabulate
 -------- 
