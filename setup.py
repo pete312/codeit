@@ -26,6 +26,6 @@ setuptools.setup(
          "Operating System :: OS Independent",
      ],
      install_requires=[ 'tabulate==0.8.7',
-                        'natsort==7.0.1',
+                        'natsort==7.1.0',
                        ]
 )

@@ -1,5 +1,5 @@
 import subprocess, os
-from copy import deepcopy
+
 
 
 class AttrDict(dict):
@@ -14,6 +14,8 @@ class AttrDict(dict):
     >>> obj.c = 3
     >>> obj
     {'a': 1, 'b': 2, 'c': 3}
+    
+    from https://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute
 
     '''
     def __init__(self, *args, **kwargs):
@@ -23,7 +25,7 @@ class AttrDict(dict):
 
 class indir:
     '''
-    indir switches context within a directory using the with statement ::
+    indir changes directory context while doing system commands. Example ::
 
         with indir('/tmp'):
             open('tmpfile', 'w').write('test\n')
@@ -39,17 +41,17 @@ class indir:
         os.chdir(self.old_dir)
 
 
-def shell(cmd, warn=True, pipe=None, success_codes=[0]):
+def shell(cmd, warn=True, capture=True, success_codes=[0], **kwargs):
     '''
     ergonomic system call wrapper returning an executed system command.
         
-    :param cmd:   Shell command to run.
-    :param warn:  do not bail if this is True
-    :param pipe:  if True buffer stderr and stdout
+    :param cmd:      Shell command to run.
+    :param warn:     Don't bail if this is True
+    :param capture:  buffer stderr and stdout
     
-    :param success_codes:  list of codes that are non failures (cmp, diff, etc)
-            
-        :ref:  http://www.tldp.org/LDP/abs/html/exitcodes.html
+    :param success_codes: numeric exit codes that mean success. Works with commands that deliver non zero exit codes (cmp, diff, etc)
+        
+        Some standard exit codes.     
             
          * 1       - Catchall for general errors
          * 2       - Misuse of shell builtins (according to Bash documentation)
@@ -59,21 +61,24 @@ def shell(cmd, warn=True, pipe=None, success_codes=[0]):
          * 128+n   - Fatal error signal “n”  -- kill -9 $PPID returns 137 (128 + 9) 
          * 130     - Script terminated by Control-C
          * 255\*   - Exit status out of range
+         
+        :ref:  http://www.tldp.org/LDP/abs/html/exitcodes.html
                         
-    :return: an instance of subprocess.CompletedProcess with extra attributes
+    :returns: an instance of subprocess.CompletedProcess with extra attributes added.
        
-        failed       True if failed test of success_codes
+        failed       True retrun code does not meet success_codes condtions
         return_code  copy of returncode
         out          copy of stdout
         err          copy of stderr
+        text         a formatted summary of the command output. 
      
-    Example prints to stdout and throws if garbage is not present ::
+    Example: prints to stdout and throws if the file garbage is not present ::
      
-        shell('rm -r /tmp/garbage')
+        shell('rm -r /tmp/garbage', capture=False)
         
-    Example pipe output and does not trow on error::
+    Example: captures output and does not trow on error::
     
-        if shell('rm -r /tmp/garbage', warn=True, pipe=True).failed:
+        if shell('rm -r /tmp/garbage', warn=True).failed:
             print ("garbage not found")
             
     Example define multiple success conditions. Bails if return codes are not part of a success list ::
@@ -83,8 +88,8 @@ def shell(cmd, warn=True, pipe=None, success_codes=[0]):
         else:
             print('files differ')
     '''
-    if pipe:
-        p = subprocess.run(cmd, shell=True, encoding='utf8', stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if capture:
+        p = subprocess.run(cmd, shell=True, encoding='utf8', stdout=subprocess.PIPE, stderr=subprocess.PIPE, **kwargs)
     else:
         p = subprocess.run(cmd, shell=True, encoding='utf8')
     setattr(p, "failed", p.returncode not in success_codes) 
@@ -98,7 +103,7 @@ def shell(cmd, warn=True, pipe=None, success_codes=[0]):
     return p
     
     
-def humanize(val, scale='U', prec=2):
+def humanize(val, scale='U', precision=2):
     """
     Convert a value to a string value ... eg 12.4 M or 12.4 Mil 
     val  : numeric value to be converted to human readable string value 
@@ -113,9 +118,9 @@ def humanize(val, scale='U', prec=2):
     set2 = 'Tho Mil Bil Trl U'.split()
     
     if precision:
-        fmt=f{f'.{prec}f'}
+        fmt=f'.{precision}f'
     else:
-        fmt=f{f'f'}
+        fmt='f'
     
     if scale in set1:
         _scale = {'':1,'B':1,'K':1000,'M':1000 ** 2,'G':1000 ** 3,'T':1000 ** 4}
@@ -169,10 +174,12 @@ def millify(n,fmt=''):
     
 if __name__ == "__main__":
     
-    from display import *
+    from display import label, view
+    from pathlib import Path
     
     k12 = 1024 * 12
     k12_2 = 1024 * 12 + 200
+    label('12k in decimal', k12)
     for v in [k12, k12_2]:
         label(f'{v} B', humanize(v, 'B'))
         label(f'{v} K', humanize(v, 'K'))
@@ -180,3 +187,8 @@ if __name__ == "__main__":
         label(f'{v} Tho', humanize(v, 'Tho'))
         label(f'{v} Mil', humanize(v, 'Mil'))
     
+    
+    me = Path(__file__)
+    with indir(me.parent):
+        view("ls -l ." , shell(f'ls -l | grep {me.name}').text)
+        

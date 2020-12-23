@@ -27,7 +27,7 @@ Inline print decorator same as label (minus the label) will peek at a value befo
 view
 ----
 
-Inline print decorator will view a block of data with conditional suppression and breakpoint ability
+view acts the same as label but it output format is different 
 
 sample
 ------
@@ -42,11 +42,85 @@ Extended functionality for tabulate to pick columns to display in the table as w
     
 shell
 -----
+    
+    ergonomic system call wrapper returning an executed system command.
+        
+    :param cmd:      Shell command to run.
+    :param warn:     Don't bail if this is True
+    :param capture:  buffer stderr and stdout
+    
+    :param success_codes: numeric exit codes that mean success. Works with commands that deliver non zero exit codes (cmp, diff, etc)
+        
+        Some standard exit codes.     
+            
+         * 1       - Catchall for general errors
+         * 2       - Misuse of shell builtins (according to Bash documentation)
+         * 126     - Command invoked cannot execute
+         * 127     - “command not found”
+         * 128     - Invalid argument to exit
+         * 128+n   - Fatal error signal “n”  -- kill -9 $PPID returns 137 (128 + 9) 
+         * 130     - Script terminated by Control-C
+         * 255\*   - Exit status out of range
+         
+        :ref:  http://www.tldp.org/LDP/abs/html/exitcodes.html
+                        
+    :returns: an instance of subprocess.CompletedProcess with extra attributes added.
+       
+        failed       True retrun code does not meet success_codes condtions
+        return_code  copy of returncode
+        out          copy of stdout
+        err          copy of stderr
+        text         a formatted summary of the command output. 
+     
+    Example: prints to stdout and throws if the file garbage is not present ::
+     
+        shell('rm -r /tmp/garbage', capture=False)
+        
+    Example: captures output and does not trow on error::
+    
+        if shell('rm -r /tmp/garbage', warn=True).failed:
+            print ("garbage not found")
+            
+    Example define multiple success conditions. Bails if return codes are not part of a success list ::
+    
+        if shell('cmp file1 file2', success_codes=[0,1]).return_code == 0:
+            print('same content')
+        else:
+            print('files differ')
 
 humanize
 --------
 
 
+AttrDict
+--------
 
-Takes  
+A dictionary that also has attribute accessors ::
+
+    >>> fruit = etc.AttrDict()
+    >>> print(fruit)
+    {}
+    
+    >>> fruit.apple = 'green'
+    >>> print(fruit)
+    {'apple': 'green'}
+    
+    >>> fruit['grape'] = 'black'
+    >>> print(fruit)
+    {'apple': 'green', 'grape': 'black'}
+    
+    >>> for name, color in fruit.items(): print(name, color)
+    ...
+    grape black
+    apple green
+
+    
+    >>> del fruit.apple
+    >>> print(fruit)
+    {'grape': 'black'}
+
+
+from https://stackoverflow.com/questions/4984647/accessing-dict-keys-like-an-attribute
+ 
+
     
