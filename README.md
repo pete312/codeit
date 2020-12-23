@@ -2,7 +2,7 @@ codeit
 ======
 
 
-Use codeit aid code writing by using inline watch functions to colorize and visualize data. There is a helper to make shell commands easier to make
+Use codeit to aid code writing by using inline watch functions to colorize and visualize data. There is a helper to make shell commands easier and table creation 
 
 label
 -----
@@ -46,8 +46,7 @@ shell
 humanize
 --------
 
-millify
--------
 
-Takes 
+
+Takes  
     

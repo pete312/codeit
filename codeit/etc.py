@@ -91,23 +91,34 @@ def shell(cmd, warn=True, pipe=None, success_codes=[0]):
     setattr(p, "return_code", p.returncode)
     setattr(p, "out", p.stdout) 
     setattr(p, "err", p.stderr)
+    setattr(p, "text", f"-cmd({cmd})\nexit({p.returncode}) success is {not p.failed}\n:out:\n-----\n{p.stdout}\n:err:\n-----\n{p.stderr}" )
     
     if p.failed and warn == False:
         raise RuntimeError(f"Failed:{cmd} exit {p.return_code}\nout:\n{p.out}err:\n{p.err}\n")
     return p
     
     
-def humanize(val, scale='K', fmt=".2f"):
+def humanize(val, scale='U', prec=2):
     """
     Convert a value to a string value ... eg 12.4 M or 12.4 Mil 
     val  : numeric value to be converted to human readable string value 
     scale: initial scale shows what the val is in.  The output will be multiples of this.
+           B = Bytes, K = Kilobytes, 
+           U = Units, Tho, Mil, Trl 
+           >>> humanize(192000000)
+           '192 Mil'
+
     """
     set1 = 'BKkMGT'
     set2 = 'Tho Mil Bil Trl U'.split()
     
+    if precision:
+        fmt=f{f'.{prec}f'}
+    else:
+        fmt=f{f'f'}
+    
     if scale in set1:
-        _scale = {'':1,'B':1,'K':1024,'M':1024 ** 2,'G':1024 ** 3,'T':1024 ** 4}
+        _scale = {'':1,'B':1,'K':1000,'M':1000 ** 2,'G':1000 ** 3,'T':1000 ** 4}
         val = val * _scale[scale]
         human_readable_val = val 
         if val / _scale['K'] >= 1.0:
@@ -147,7 +158,7 @@ def humanize(val, scale='K', fmt=".2f"):
 import math
 millnames = ['',' Thousand',' Million',' Billion',' Trillion']
 
-def millify(n):
+def millify(n,fmt=''):
     n = float(n)
     millidx = max(0,min(len(millnames)-1,
                         int(math.floor(0 if n == 0 else math.log10(abs(n))/3))))

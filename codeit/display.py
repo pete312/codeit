@@ -26,7 +26,9 @@ COLOR = {
     "GREYS" : GREYS,
     "GRAYS" : GREYS
 }
+
 plus_minus=chr(0x00B1)
+
 def red(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in red color
         s : str(text) 
