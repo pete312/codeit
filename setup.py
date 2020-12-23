@@ -25,7 +25,7 @@ setuptools.setup(
          "Programming Language :: Python :: 3.6",
          "Operating System :: OS Independent",
      ],
-     install_requires=[ 'tabulate==0.8.2',
+     install_requires=[ 'tabulate==0.8.7',
                         'natsort==7.0.1',
                        ]
 )
