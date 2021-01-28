@@ -150,7 +150,7 @@ def exit(value=0):
     sys.exit(value)
 
 
-def view(caption, content, color=None, file=sys.stdout):
+def view(caption, content, color=None, file=sys.stdout, formatter=str):
     '''
     data visualizer that performs a view before use action on any variable. 
     Handy in list or dict comprensions or anywhere you need to inspect data values without a debugger.
@@ -179,12 +179,12 @@ def view(caption, content, color=None, file=sys.stdout):
         
     last_line = (currentframe().f_back).f_lineno
 
-    caption_color =  yellow
+    caption_color = yellow
     if color == yellow:
         caption_color == red
     print(red(last_line), caption_color(caption),caption_color('...'), file=file)
     content_size = 0
-    if isinstance(content, list):
+    if isinstance(content, list) or isinstance(content, tuple):
         for i in content:
             content_size += len(str(i))
             if color:
@@ -275,8 +275,7 @@ def label(caption, d, color=str, format=False):
     
 label.bp = []
 
-
-def tabulate(grid, *args, pick=[], headers=[], label='', verbose=False, tablefmt='psql', **kwargs):
+def tabulate(grid, *args, pick=[], headers=[], label='', verbose=False, tablefmt='psql', disable_numparse=True, **kwargs):
     '''
     Tabulate presentation wrapper extends tabulate to be able to pick column numbers to view and supports table label and line number location.
     
@@ -294,11 +293,11 @@ def tabulate(grid, *args, pick=[], headers=[], label='', verbose=False, tablefmt
             raise ValueError(f"column pick exceeds the width of grid. Value must be between {-width} and {width - 1}")
          
         _grid = [[row[i] for i in pick] for row in grid]
-        return _tabulate(_grid, *args, tablefmt=tablefmt, headers=headers, **kwargs)
+        return _tabulate(_grid, *args, tablefmt=tablefmt, headers=headers, disable_numparse=disable_numparse, **kwargs)
     if headers and width != len(headers):
         raise ValueError("headers do not match the the width of grid. Did you forget to set a pick range?")
         
-    return _tabulate(grid, *args, tablefmt=tablefmt, headers=headers, **kwargs)
+    return _tabulate(grid, *args, tablefmt=tablefmt, headers=headers, disable_numparse=disable_numparse, **kwargs)
 
 
 def sample(obj, maxdepth=2, formatter=pformat):
