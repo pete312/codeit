@@ -2,7 +2,9 @@ codeit
 ======
 
 
-Use codeit to aid code writing by using inline watch functions to colorize and visualize data. There is a helper to make shell commands easier and table creation 
+Use codeit to aid code writing by using inline data watch functions to colorize and visualize data with optional breakpoints. There is a helper to make shell commands easier and table creation. 
+
+view, label and peek perform a passthough print that outputs the line number of the data.
 
 label
 -----

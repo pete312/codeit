@@ -41,6 +41,15 @@ def red(s, tone=0, reverse=False, reset=RESET):
     tone = 5 - tone
     return f"\x1b[38;5;{COL[tone]}m{s}{reset}"
 
+red4 = lambda s: red(s, tone=4)
+red3 = lambda s: red(s, tone=3)
+red2 = lambda s: red(s, tone=2)
+red1 = lambda s: red(s, tone=1)
+red_1 = lambda s: red(s, tone=-1)
+red_2 = lambda s: red(s, tone=-2)
+red_3 = lambda s: red(s, tone=-3)
+red_4 = lambda s: red(s, tone=-4)
+
 def blue(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in red color
         s : str(text) 
@@ -52,6 +61,16 @@ def blue(s, tone=0, reverse=False, reset=RESET):
     assert -5 <= tone <= 5  , f"tone can be {plus_minus} 5"
     tone = 5 - tone
     return f"\x1b[38;5;{COL[tone]}m{s}{reset}"
+    
+    
+blue4 = lambda s: blue(s, tone=4)
+blue3 = lambda s: blue(s, tone=3)
+blue2 = lambda s: blue(s, tone=2)
+blue1 = lambda s: blue(s, tone=1)
+blue_1 = lambda s: blue(s, tone=-1)
+blue_2 = lambda s: blue(s, tone=-2)
+blue_3 = lambda s: blue(s, tone=-3)
+blue_4 = lambda s: blue(s, tone=-4)
     
 def green(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in green color
@@ -65,6 +84,15 @@ def green(s, tone=0, reverse=False, reset=RESET):
     tone = 5 - tone
     return f"\x1b[38;5;{COL[tone]}m{s}{reset}"
     
+green4 = lambda s: green(s, tone=4)
+green3 = lambda s: green(s, tone=3)
+green2 = lambda s: green(s, tone=2)
+green1 = lambda s: green(s, tone=1)
+green_1 = lambda s: green(s, tone=-1)
+green_2 = lambda s: green(s, tone=-2)
+green_3 = lambda s: green(s, tone=-3)
+green_4 = lambda s: green(s, tone=-4)
+    
 def yellow(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in yellow color
         s : str(text) 
@@ -76,6 +104,15 @@ def yellow(s, tone=0, reverse=False, reset=RESET):
     assert -5 <= tone <= 5  , f"tone can be {plus_minus} 5"
     tone = 5 - tone
     return f"\x1b[38;5;{COL[tone]}m{s}{reset}"
+    
+yellow4 = lambda s: yellow(s, tone=4)
+yellow3 = lambda s: yellow(s, tone=3)
+yellow2 = lambda s: yellow(s, tone=2)
+yellow1 = lambda s: yellow(s, tone=1)
+yellow_1 = lambda s: yellow(s, tone=-1)
+yellow_2 = lambda s: yellow(s, tone=-2)
+yellow_3 = lambda s: yellow(s, tone=-3)
+yellow_4 = lambda s: yellow(s, tone=-4)
     
 def magenta(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in magenta color
@@ -89,6 +126,15 @@ def magenta(s, tone=0, reverse=False, reset=RESET):
     tone = 5 - tone
     return f"\x1b[38;5;{COL[tone]}m{s}{reset}"
 
+magenta4 = lambda s: magenta(s, tone=4)
+magenta3 = lambda s: magenta(s, tone=3)
+magenta2 = lambda s: magenta(s, tone=2)
+magenta1 = lambda s: magenta(s, tone=1)
+magenta_1 = lambda s: magenta(s, tone=-1)
+magenta_2 = lambda s: magenta(s, tone=-2)
+magenta_3 = lambda s: magenta(s, tone=-3)
+magenta_4 = lambda s: magenta(s, tone=-4)
+
 def cyan(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in cyan color
         s : str(text) 
@@ -100,6 +146,15 @@ def cyan(s, tone=0, reverse=False, reset=RESET):
     assert -5 <= tone <= 5  , f"tone can be {plus_minus} 5"
     tone = 5 - tone
     return f"\x1b[38;5;{COL[tone]}m{s}{reset}"
+    
+cyan4 = lambda s: cyan(s, tone=4)
+cyan3 = lambda s: cyan(s, tone=3)
+cyan2 = lambda s: cyan(s, tone=2)
+cyan1 = lambda s: cyan(s, tone=1)
+cyan_1 = lambda s: cyan(s, tone=-1)
+cyan_2 = lambda s: cyan(s, tone=-2)
+cyan_3 = lambda s: cyan(s, tone=-3)
+cyan_4 = lambda s: cyan(s, tone=-4)
     
 def grey(s, tone=0, reverse=False, reset=RESET):
     ''' decorate text in grey color
@@ -222,7 +277,7 @@ def view(caption, content, color=None, file=sys.stdout, formatter=str):
     return content
     
     
-def peek(d, color=None, formatter=str):
+def peek(d, color=str, sprint=False, formatter=str):
     '''
     decorator function that displays a value returning its contents. Will label the output with the line number. 
     color text color formatter function default None.
@@ -230,10 +285,12 @@ def peek(d, color=None, formatter=str):
     '''
     last_line = (currentframe().f_back).f_lineno
     _label = f'{last_line:<-4d}:'
-    if color:
-        print(grey(_label), color(formatter(d)))
+    tail = '\n' if len(str(d)) < 4000 else f"\n ... {_label[:-1]}\n"
+    if sprint:
+        return f"{grey(_label)} {color(formatter(d))}{tail}"
     else:
-        print(grey(_label), formatter(d))
+        print(grey(_label), color(formatter(d)), end=tail)
+
     if last_line in peek.bp:
         input(f'bp line {last_line}')
     return d

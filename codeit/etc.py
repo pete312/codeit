@@ -1,5 +1,6 @@
 import subprocess, os
-
+from inspect import currentframe
+import time
 
 
 class AttrDict(dict):
@@ -23,11 +24,11 @@ class AttrDict(dict):
         self.__dict__ = self
 
 
-class indir:
+class in_dir:
     '''
-    indir changes directory context while doing system commands. Example ::
+    in_dir changes directory context while doing system commands. Example ::
 
-        with indir('/tmp'):
+        with in_dir('/tmp'):
             open('tmpfile', 'w').write('test\n')
     '''
     def __init__(self, new_dir):
@@ -43,13 +44,14 @@ class indir:
 
 def shell(cmd, warn=True, capture=True, success_codes=[0], **kwargs):
     '''
-    ergonomic system call wrapper returning an executed system command.
+    easy to use subprocess wrapper returning an executed system command.
+    async safe but not thread safe.
         
     :param cmd:      Shell command to run.
-    :param warn:     Don't bail if this is True
-    :param capture:  buffer stderr and stdout
+    :param warn:     Don't bail on command failure if this is True
+    :param capture:  buffer stderr and stdout to property value.
     
-    :param success_codes: numeric exit codes that mean success. Works with commands that deliver non zero exit codes (cmp, diff, etc)
+    :param success_codes: most unix processes return 0 when they succeed, but some (cmp, diff, etc) have non zero return values. success_codes is a list of codes that are considered as non failure. This affects shell(<cmd>).success  and shell(<cmd>).faulure states
         
         Some standard exit codes.     
             
@@ -67,6 +69,7 @@ def shell(cmd, warn=True, capture=True, success_codes=[0], **kwargs):
     :returns: an instance of subprocess.CompletedProcess with extra attributes added.
        
         failed       True retrun code does not meet success_codes condtions
+        succeeded    just the inverse of failed
         return_code  copy of returncode
         out          copy of stdout
         err          copy of stderr
@@ -93,6 +96,7 @@ def shell(cmd, warn=True, capture=True, success_codes=[0], **kwargs):
     else:
         p = subprocess.run(cmd, shell=True, encoding='utf8')
     setattr(p, "failed", p.returncode not in success_codes) 
+    setattr(p, "succeeded", not p.failed) 
     setattr(p, "return_code", p.returncode)
     setattr(p, "out", p.stdout) 
     setattr(p, "err", p.stderr)
@@ -103,6 +107,18 @@ def shell(cmd, warn=True, capture=True, success_codes=[0], **kwargs):
     return p
     
     
+    
+class NoRef:
+    pass 
+    
+def ref(obj=NoRef):
+    if obj is NoRef:
+       return ref.obj
+    ref.obj = obj
+    return obj
+ref.obj = None
+
+
 def humanize(val, scale='U', precision=2):
     """
     Convert a value to a string value ... eg 12.4 M or 12.4 Mil 
@@ -170,7 +186,26 @@ def millify(n,fmt=''):
 
     return '{:.0f}{}'.format(n / 10**(3 * millidx), millnames[millidx])
     
+def timeit(method):
+    def timed(*args, **kw):
+        begin = time.time()
+        result = method(*args, **kw)
+        if kw.get('logtime', None):
+            kw.get('logtime')(f"{((currentframe().f_back).f_lineno)} {method.__name__} took {(time.time() - begin) * 1000:.2f} ms")
+        else:
+            print( red((currentframe().f_back).f_lineno),  yellow(f'{method.__name__}'),  f'took {(time.time() - begin) * 1000:.2f} ms')
+        return result
+    return timed
     
+    
+def hold(*a):
+    if len(a) == 0: return hold.data
+    hold.data = a
+    if len(a) > 1:
+        return hold.data
+    else:
+        return hold.data[0]
+hold.data = None 
     
 if __name__ == "__main__":
     
@@ -191,4 +226,14 @@ if __name__ == "__main__":
     me = Path(__file__)
     with indir(me.parent):
         view("ls -l ." , shell(f'ls -l | grep {me.name}').text)
+        
+        
+def prompt(question, choice=['y','n'], success=['y']):
+    while True:
+        ans = (input(question)).lower()
+        if not valid or a in valid:
+            break
+        print("please choose")
+ 
+    return ans in success
         
